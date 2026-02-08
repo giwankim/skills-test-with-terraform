@@ -1,0 +1,137 @@
+name: Terraform
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.9"
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Validate Networking Module
+        working-directory: modules/networking
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      - name: Validate ALB Module
+        working-directory: modules/alb
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      - name: Validate ECS Fargate Module
+        working-directory: modules/ecs-fargate
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      - name: Validate RDS Module
+        working-directory: modules/rds
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      - name: Validate Root Module
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      - name: TFLint
+        uses: terraform-linters/setup-tflint@v4
+      - run: |
+          tflint --init
+          tflint --chdir=modules/networking
+          tflint --chdir=modules/alb
+          tflint --chdir=modules/ecs-fargate
+          tflint --chdir=modules/rds
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Trivy Config Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          exit-code: 1
+
+  test:
+    name: Test (${{ matrix.module }})
+    needs: validate
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        module: [networking, alb, ecs-fargate, rds]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.9"
+
+      - name: Initialize Module
+        working-directory: modules/${{ matrix.module }}
+        run: terraform init -backend=false
+
+      - name: Run Tests
+        working-directory: modules/${{ matrix.module }}
+        run: terraform test -verbose
+
+  test-integration:
+    name: Integration Test
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.9"
+
+      - name: Initialize Root Module
+        run: terraform init -backend=false
+
+      - name: Run Integration Tests
+        run: terraform test -verbose
+
+  plan-examples:
+    name: Plan Examples (${{ matrix.example }})
+    if: github.event_name == 'pull_request'
+    needs: test-integration
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        example: [minimal, complete]
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.9"
+
+      - name: Init & Plan
+        working-directory: examples/${{ matrix.example }}
+        run: |
+          terraform init -backend=false
+          terraform plan -input=false
