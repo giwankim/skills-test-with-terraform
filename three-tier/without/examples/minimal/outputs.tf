@@ -1,0 +1,11 @@
+output "vpc_id" {
+  value = module.stack.vpc_id
+}
+
+output "alb_dns_name" {
+  value = module.stack.alb_dns_name
+}
+
+output "rds_endpoint" {
+  value = module.stack.rds_endpoint
+}
