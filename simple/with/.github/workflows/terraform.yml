@@ -1,0 +1,103 @@
+name: Terraform
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.9"
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Validate Module
+        working-directory: modules/s3-bucket
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      - name: Validate Minimal Example
+        working-directory: modules/s3-bucket/examples/minimal
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      - name: Validate Complete Example
+        working-directory: modules/s3-bucket/examples/complete
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      - name: TFLint
+        uses: terraform-linters/setup-tflint@v4
+      - run: |
+          tflint --init
+          tflint --chdir=modules/s3-bucket
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Trivy Config Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          scan-ref: modules/s3-bucket
+          severity: HIGH,CRITICAL
+          exit-code: 1
+
+  test:
+    name: Test
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.9"
+
+      - name: Initialize Module
+        working-directory: modules/s3-bucket
+        run: terraform init -backend=false
+
+      - name: Run Tests
+        working-directory: modules/s3-bucket
+        run: terraform test -verbose
+
+  plan-examples:
+    name: Plan Examples
+    if: github.event_name == 'pull_request'
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        example: [minimal, complete]
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.9"
+
+      - name: Init & Plan
+        working-directory: modules/s3-bucket/examples/${{ matrix.example }}
+        run: |
+          terraform init -backend=false
+          terraform plan -input=false
