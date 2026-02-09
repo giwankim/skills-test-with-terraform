@@ -11,8 +11,8 @@ This evaluation compares both implementations using the criteria in `terraform-s
 
 ## Scope
 
-- Skilled: `/Users/gwk/.codex/worktrees/54b8/test-skills/three-tier/claude/skilled`
-- Unskilled: `/Users/gwk/.codex/worktrees/54b8/test-skills/three-tier/claude/unskilled`
+- Skilled: `three-tier/claude/skilled`
+- Unskilled: `three-tier/claude/unskilled`
 
 ## Scorecard (terraform-skill criteria)
 
