@@ -41,7 +41,6 @@ module "ecs_fargate" {
   subnet_ids            = module.networking.private_subnet_ids
   alb_security_group_id = module.alb.security_group_id
   target_group_arn      = module.alb.target_group_arn
-  listener_arn          = module.alb.listener_arn
   container_image       = var.ecs_container_image
   container_name        = var.ecs_container_name
   container_port        = var.ecs_container_port

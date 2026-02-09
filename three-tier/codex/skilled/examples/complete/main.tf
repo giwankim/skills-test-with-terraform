@@ -17,7 +17,7 @@ module "three_tier" {
 
   ecs_container_image  = "public.ecr.aws/docker/library/nginx:stable"
   ecs_container_name   = "web"
-  ecs_container_port   = 8080
+  ecs_container_port   = 80
   ecs_container_cpu    = 512
   ecs_container_memory = 1024
   ecs_desired_count    = 2

@@ -247,13 +247,22 @@ variable "environments" {
 }
 
 resource "aws_instance" "app" {
-  for_each = var.environments
+  for_each = {
+    for instance in flatten([
+      for env_name, env in var.environments : [
+        for idx in range(env.instance_count) : {
+          key           = "${env_name}-${idx}"
+          environment   = env_name
+          instance_type = env.instance_type
+        }
+      ]
+    ]) : instance.key => instance
+  }
 
   instance_type = each.value.instance_type
-  count         = each.value.instance_count
 
   tags = {
-    Environment = each.key  # "dev" or "prod"
+    Environment = each.value.environment
   }
 }
 ```

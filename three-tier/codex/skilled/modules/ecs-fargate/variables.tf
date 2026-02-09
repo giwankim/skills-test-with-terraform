@@ -33,11 +33,6 @@ variable "target_group_arn" {
   type        = string
 }
 
-variable "listener_arn" {
-  description = "ARN of the ALB listener (used for depends_on)"
-  type        = string
-}
-
 variable "container_image" {
   description = "Container image used by the ECS task definition"
   type        = string

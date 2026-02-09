@@ -70,10 +70,16 @@ variable "username" {
 }
 
 variable "password" {
-  description = "Master password for RDS. If null, Terraform generates one"
+  description = "Master password for RDS. If null, Terraform generates one and sends it using write-only arguments"
   type        = string
   default     = null
   sensitive   = true
+}
+
+variable "password_wo_version" {
+  description = "Version marker for write-only password updates. Increment to rotate the password."
+  type        = number
+  default     = 1
 }
 
 variable "port" {
@@ -94,22 +100,23 @@ variable "backup_retention_period" {
   default     = 7
 }
 
+# Production-safe defaults; override in dev/test when faster iteration is preferred.
 variable "apply_immediately" {
   description = "Whether RDS modifications are applied immediately"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "skip_final_snapshot" {
   description = "Whether to skip a final snapshot when destroying RDS"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "deletion_protection" {
   description = "Whether deletion protection is enabled for RDS"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "tags" {

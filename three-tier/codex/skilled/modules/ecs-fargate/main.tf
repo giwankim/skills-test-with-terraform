@@ -176,8 +176,6 @@ resource "aws_ecs_service" "this" {
     subnets          = var.subnet_ids
   }
 
-  depends_on = [var.listener_arn]
-
   tags = merge(local.common_tags, {
     Name = "${local.name_prefix}-service"
   })

@@ -166,7 +166,7 @@ variable "rds_username" {
 }
 
 variable "rds_password" {
-  description = "Master password for RDS. If null, Terraform generates one"
+  description = "Master password for RDS. If null, Terraform generates one and passes it via write-only arguments in the RDS module"
   type        = string
   default     = null
   sensitive   = true
@@ -187,7 +187,7 @@ variable "rds_multi_az" {
 variable "rds_skip_final_snapshot" {
   description = "Whether to skip a final snapshot when destroying RDS"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "tags" {
