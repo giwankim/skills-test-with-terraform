@@ -3,6 +3,7 @@ name: Automated Release
 on:
   push:
     branches:
+      - main
       - master
   workflow_dispatch:
 
