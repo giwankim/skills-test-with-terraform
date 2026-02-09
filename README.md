@@ -28,14 +28,13 @@ That gives **8 implementation directories** that can be compared side by side.
 │   ├── codex/
 │   │   ├── skilled/
 │   │   └── unskilled/
-│   └── three-tier/
-│       ├── claude/   # evaluation notes
-│       └── codex/    # evaluation notes
 ├── three-tier/
 │   ├── claude/
+│   │   ├── README.md   # evaluation notes
 │   │   ├── skilled/
 │   │   └── unskilled/
 │   └── codex/
+│       ├── README.md   # evaluation notes
 │       ├── skilled/
 │       └── unskilled/
 └── README.md
@@ -99,7 +98,7 @@ Project-level comparison writeups are available in:
 
 - `s3/claude/README.md`
 - `s3/codex/README.md`
-- `s3/three-tier/claude/README.md`
-- `s3/three-tier/codex/README.md`
+- `three-tier/claude/README.md`
+- `three-tier/codex/README.md`
 
 Detailed implementation docs also exist under each `skilled/` and `unskilled/` directory.
