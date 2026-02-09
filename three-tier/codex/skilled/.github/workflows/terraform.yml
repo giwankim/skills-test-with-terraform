@@ -18,7 +18,7 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "~1.9"
+          terraform_version: "~1.11"
 
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
@@ -87,7 +87,7 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "~1.9"
+          terraform_version: "~1.11"
 
       - name: Initialize Module
         working-directory: modules/${{ matrix.module }}
@@ -106,7 +106,7 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "~1.9"
+          terraform_version: "~1.11"
 
       - name: Initialize Root Module
         run: terraform init -backend=false
@@ -128,7 +128,7 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "~1.9"
+          terraform_version: "~1.11"
 
       - name: Init & Plan
         working-directory: examples/${{ matrix.example }}

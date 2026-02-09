@@ -95,10 +95,16 @@ run "create_bucket" {
 }
 
 run "verify_encryption" {
-  command = plan
+  command = apply
 
   assert {
-    condition     = aws_s3_bucket_server_side_encryption_configuration.main.rule[0].apply_server_side_encryption_by_default[0].sse_algorithm == "AES256"
+    condition = alltrue([
+      for rule in aws_s3_bucket_server_side_encryption_configuration.main.rule :
+      alltrue([
+        for config in rule.apply_server_side_encryption_by_default :
+        config.sse_algorithm == "AES256"
+      ])
+    ])
     error_message = "Bucket must use AES256 encryption"
   }
 }

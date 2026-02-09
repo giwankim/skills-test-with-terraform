@@ -255,17 +255,67 @@ terraformOptions := &terraform.Options{
 #!/bin/bash
 # cleanup-test-resources.sh
 
-# Find and terminate instances older than 2 hours with test tag
+set -euo pipefail
+
+parse_ttl_seconds() {
+  local ttl="$1"
+  case "$ttl" in
+    *d) echo "$(( ${ttl%d} * 86400 ))" ;;
+    *h) echo "$(( ${ttl%h} * 3600 ))" ;;
+    *m) echo "$(( ${ttl%m} * 60 ))" ;;
+    *s) echo "${ttl%s}" ;;
+    *)
+      echo "0"
+      ;;
+  esac
+}
+
+now_epoch=$(date -u +%s)
+
 aws resourcegroupstaggingapi get-resources \
   --tag-filters Key=Environment,Values=test \
-  --query 'ResourceTagMappingList[?Tags[?Key==`TTL` && Value<`'$(date -u -d '2 hours ago' +%Y-%m-%dT%H:%M:%S)'`]].ResourceARN' \
-  --output text | \
-  while read arn; do
-    instance_id=$(echo $arn | grep -oP 'instance/\K[^/]+')
-    if [ ! -z "$instance_id" ]; then
-      echo "Terminating instance: $instance_id"
-      aws ec2 terminate-instances --instance-ids $instance_id
-    fi
+  --output json | \
+jq -c '.ResourceTagMappingList[]' | \
+while read -r mapping; do
+  resource_arn=$(echo "$mapping" | jq -r '.ResourceARN')
+  ttl_value=$(echo "$mapping" | jq -r '.Tags[]? | select(.Key=="TTL") | .Value' | head -n1)
+
+  [ -z "$ttl_value" ] && continue
+
+  IFS=':' read -r _ _ service _ _ arn_resource_segment <<< "$resource_arn"
+  resource_type="${arn_resource_segment%%/*}"
+  resource_id="${arn_resource_segment#*/}"
+
+  ttl_seconds=$(parse_ttl_seconds "$ttl_value")
+  if [ "$ttl_seconds" -le 0 ]; then
+    echo "Skipping $resource_arn (invalid TTL: $ttl_value)"
+    continue
+  fi
+
+  case "${service}:${resource_type}" in
+    ec2:instance)
+      launch_time=$(aws ec2 describe-instances \
+        --instance-ids "$resource_id" \
+        --query 'Reservations[0].Instances[0].LaunchTime' \
+        --output text 2>/dev/null || true)
+
+      if [ -z "$launch_time" ] || [ "$launch_time" = "None" ]; then
+        echo "Skipping $resource_arn (unable to resolve launch time)"
+        continue
+      fi
+
+      launch_epoch=$(date -u -d "$launch_time" +%s)
+      age_seconds=$((now_epoch - launch_epoch))
+
+      if [ "$age_seconds" -ge "$ttl_seconds" ]; then
+        echo "Terminating expired EC2 instance: $resource_id"
+        aws ec2 terminate-instances --instance-ids "$resource_id"
+      fi
+      ;;
+    *)
+      echo "Skipping unsupported resource type: ${service}:${resource_type} ($resource_arn)"
+      ;;
+  esac
   done
 ```
 

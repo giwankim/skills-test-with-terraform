@@ -66,7 +66,8 @@ resource "aws_db_instance" "this" {
   identifier              = substr("${local.name_prefix}-db", 0, 63)
   instance_class          = var.instance_class
   multi_az                = var.multi_az
-  password                = local.password
+  password_wo             = local.password
+  password_wo_version     = var.password_wo_version
   port                    = var.port
   skip_final_snapshot     = var.skip_final_snapshot
   storage_encrypted       = true

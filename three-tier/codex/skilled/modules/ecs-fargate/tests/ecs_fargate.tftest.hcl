@@ -24,7 +24,6 @@ run "ecs_cluster_created" {
     subnet_ids            = ["subnet-aaa", "subnet-bbb"]
     alb_security_group_id = "sg-alb123"
     target_group_arn      = "arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/mock-tg/1234567890"
-    listener_arn          = "arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/mock-alb/1234567890/1234567890"
   }
 
   assert {
@@ -43,7 +42,6 @@ run "desired_count_matches" {
     subnet_ids            = ["subnet-aaa", "subnet-bbb"]
     alb_security_group_id = "sg-alb123"
     target_group_arn      = "arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/mock-tg/1234567890"
-    listener_arn          = "arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/mock-alb/1234567890/1234567890"
     desired_count         = 3
   }
 
@@ -63,7 +61,6 @@ run "launch_type_fargate" {
     subnet_ids            = ["subnet-aaa", "subnet-bbb"]
     alb_security_group_id = "sg-alb123"
     target_group_arn      = "arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/mock-tg/1234567890"
-    listener_arn          = "arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/mock-alb/1234567890/1234567890"
   }
 
   assert {
@@ -82,7 +79,6 @@ run "network_mode_awsvpc" {
     subnet_ids            = ["subnet-aaa", "subnet-bbb"]
     alb_security_group_id = "sg-alb123"
     target_group_arn      = "arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/mock-tg/1234567890"
-    listener_arn          = "arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/mock-alb/1234567890/1234567890"
   }
 
   assert {
@@ -106,7 +102,6 @@ run "deployment_knobs" {
     subnet_ids                         = ["subnet-aaa", "subnet-bbb"]
     alb_security_group_id              = "sg-alb123"
     target_group_arn                   = "arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/mock-tg/1234567890"
-    listener_arn                       = "arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/mock-alb/1234567890/1234567890"
     deployment_maximum_percent         = 250
     deployment_minimum_healthy_percent = 75
     force_new_deployment               = true
@@ -138,7 +133,6 @@ run "circuit_breaker_defaults" {
     subnet_ids            = ["subnet-aaa", "subnet-bbb"]
     alb_security_group_id = "sg-alb123"
     target_group_arn      = "arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/mock-tg/1234567890"
-    listener_arn          = "arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/mock-alb/1234567890/1234567890"
   }
 
   assert {
@@ -162,7 +156,6 @@ run "invalid_container_port_rejected" {
     subnet_ids            = ["subnet-aaa", "subnet-bbb"]
     alb_security_group_id = "sg-alb123"
     target_group_arn      = "arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/mock-tg/1234567890"
-    listener_arn          = "arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/mock-alb/1234567890/1234567890"
     container_port        = 0
   }
 
@@ -181,7 +174,6 @@ run "tags_propagated" {
     subnet_ids            = ["subnet-aaa", "subnet-bbb"]
     alb_security_group_id = "sg-alb123"
     target_group_arn      = "arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/mock-tg/1234567890"
-    listener_arn          = "arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/mock-alb/1234567890/1234567890"
     tags = {
       Environment = "test"
     }

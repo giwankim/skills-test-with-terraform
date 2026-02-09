@@ -153,17 +153,28 @@ jobs:
       - name: Check for Broken Links
         run: |
           echo "🔍 Checking internal links..."
-          if grep -oP '\[.*?\]\(references/.*?\.md.*?\)' SKILL.md references/*.md 2>/dev/null | \
-             sed 's/.*(//' | sed 's/).*//' | sed 's/#.*//' | \
-             while read -r link; do
-               if [ ! -f "$link" ]; then
-                 echo "❌ ERROR: Broken link: $link"
-                 exit 1
-               fi
-             done
-          then
-            echo "✅ No broken links"
+          links=$(grep -oP '\[.*?\]\(references/.*?\.md.*?\)' SKILL.md references/*.md 2>/dev/null | \
+            sed 's/.*(//' | sed 's/).*//' | sed 's/#.*//' | sort -u || true)
+
+          if [ -z "$links" ]; then
+            echo "ℹ️ No internal reference links found"
+            exit 0
           fi
+
+          broken=0
+          while IFS= read -r link; do
+            [ -z "$link" ] && continue
+            if [ ! -f "$link" ]; then
+              echo "❌ ERROR: Broken link: $link"
+              broken=1
+            fi
+          done <<< "$links"
+
+          if [ "$broken" -ne 0 ]; then
+            exit 1
+          fi
+
+          echo "✅ No broken links"
 
       - name: Lint Markdown
         uses: DavidAnson/markdownlint-cli2-action@v16
