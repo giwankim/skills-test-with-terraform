@@ -1,6 +1,6 @@
 # Evaluation: `three-tier/claude/skilled` vs `three-tier/claude/unskilled`
 
-This evaluation compares both implementations using the criteria in `terraform-skill` (`/Users/gwk/.agents/skills/terraform-skill/SKILL.md`), focusing on:
+This evaluation compares both implementations using the criteria in `terraform-skill` (`https://raw.githubusercontent.com/antonbabenko/terraform-skill/refs/heads/master/SKILL.md`), focusing on:
 - module hierarchy and structure
 - naming and block conventions
 - variable quality and validation
@@ -78,7 +78,7 @@ Using `terraform-skill` criteria, **`three-tier/claude/skilled` is clearly stron
 
 ## Recommended Next Improvements
 
-1. Add secrets-manager based DB credential flow in both implementations to avoid state-held credentials.
+1. Add secrets-manager-based DB credential flow in both implementations to avoid state-held credentials.
 2. Replace inline security-group rules with dedicated rule resources for safer composition.
 3. Set safer production defaults (`skip_final_snapshot = false`, `deletion_protection = true`) and allow explicit opt-out for dev.
 4. Bring `unskilled` provider constraints to pessimistic pinning (`~>`), and add variable-level validation for CIDRs/ports/engine.
